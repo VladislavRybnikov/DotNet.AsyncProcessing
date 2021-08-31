@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet.AsyncProcessing", "DotNet.AsyncProcessing\DotNet.AsyncProcessing.csproj", "{960AD08D-DE25-4999-AD8E-C3972E96A7E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet.AsyncProcessing.Examples", "DotNet.AsyncProcessing.Examples\DotNet.AsyncProcessing.Examples.csproj", "{70031706-E823-41ED-B1F7-089B311A2157}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{960AD08D-DE25-4999-AD8E-C3972E96A7E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{960AD08D-DE25-4999-AD8E-C3972E96A7E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{960AD08D-DE25-4999-AD8E-C3972E96A7E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{960AD08D-DE25-4999-AD8E-C3972E96A7E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70031706-E823-41ED-B1F7-089B311A2157}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70031706-E823-41ED-B1F7-089B311A2157}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70031706-E823-41ED-B1F7-089B311A2157}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70031706-E823-41ED-B1F7-089B311A2157}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
