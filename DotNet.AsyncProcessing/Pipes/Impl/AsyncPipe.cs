@@ -7,7 +7,7 @@ using DotNet.AsyncProcessing.Exceptions;
 
 namespace DotNet.AsyncProcessing.Pipes
 {
-    internal class AsyncPipeImpl<T> : IAsyncPipe<T>
+    internal class AsyncPipe<T> : IAsyncPipe<T>
     {
         private readonly int _minBatchSize;
         private readonly TimeSpan? _timeout;
@@ -19,7 +19,7 @@ namespace DotNet.AsyncProcessing.Pipes
         private uint _consumed;
         private Task _consumeTask;
 
-        public AsyncPipeImpl(int maxBatchSize, int minBatchSize, TimeSpan? timeout = null)
+        public AsyncPipe(int maxBatchSize, int minBatchSize, TimeSpan? timeout = null)
         {
             if (maxBatchSize < 1)
                 throw new ArgumentOutOfRangeException(nameof(maxBatchSize), "Batch size is lower than 1");
@@ -99,6 +99,8 @@ namespace DotNet.AsyncProcessing.Pipes
             {
                 // ignore exceptions
             });
+
+            _cts.Dispose();
         }
     }
 }

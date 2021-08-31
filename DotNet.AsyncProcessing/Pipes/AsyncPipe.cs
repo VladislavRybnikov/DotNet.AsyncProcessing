@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,7 +23,7 @@ namespace DotNet.AsyncProcessing.Pipes
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static IAsyncPipe<T> Create<T>(int maxIn = 1, int minOut = 1, TimeSpan? timeout = null)
-            => new AsyncPipeImpl<T>(maxIn, minOut, timeout);
+            => new AsyncPipe<T>(maxIn, minOut, timeout);
 
         /// <summary>
         /// Creates <see cref="IAsyncPipeBuilder{T}"/>.
@@ -30,5 +32,30 @@ namespace DotNet.AsyncProcessing.Pipes
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static IAsyncPipeBuilder<T> Of<T>(int size = 1) => new AsyncPipeBuilder<T>(size);
+
+        /// <summary>
+        /// Connect one pipe to another.
+        /// </summary>
+        /// <param name="pipe"></param>
+        /// <param name="other"></param>
+        /// <param name="transform"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public static IAsyncPipe<TResult> Connect<T, TResult>(
+            this IAsyncPipe<T> pipe, 
+            IAsyncPipe<TResult> other,
+            Func<T, TResult> transform)
+        {
+            pipe.Consume(async (items, ct) =>
+            {
+                foreach (var transformed in items.Select(transform))
+                {
+                    await other.PushAsync(transformed);
+                }
+            });
+
+            return other;
+        }
     }
 }
