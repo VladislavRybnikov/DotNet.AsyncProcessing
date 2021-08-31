@@ -17,6 +17,7 @@ namespace DotNet.AsyncProcessing.Pipes
         private readonly int _maxBatchSize;
         private ConsumerException _consumerException;
         private uint _consumed;
+        private Task _consumeTask;
 
         public AsyncPipeImpl(int maxBatchSize, int minBatchSize, TimeSpan? timeout = null)
         {
@@ -53,20 +54,13 @@ namespace DotNet.AsyncProcessing.Pipes
             if (_consumerException is { } ex) return ValueTask.FromException(ex);
             return _channel.Writer.WriteAsync(item, _ct);
         }
-        
-        public async ValueTask DisposeAsync()
-        {
-            _cts.Cancel();
-            _channel.Writer.Complete();
-            await _channel.Reader.Completion;
-        }
 
         public bool Consume(PipeConsumer<T> consumer, 
             bool suppressConsumerExceptions = false,
             bool skipEmptyOutput = false)
         {
             if (Interlocked.CompareExchange(ref _consumed, 1, 0) != 0) return false;
-            Task.Run(async () =>
+            _consumeTask = Task.Run(async () =>
             {
                 while (!_ct.IsCancellationRequested)
                 {
@@ -94,6 +88,17 @@ namespace DotNet.AsyncProcessing.Pipes
             }, _ct);
 
             return true;
+        }
+        
+        public async ValueTask DisposeAsync()
+        {
+            _cts.Cancel();
+            _channel.Writer.Complete();
+            await _channel.Reader.Completion;
+            await _consumeTask.ContinueWith(_ =>
+            {
+                // ignore exceptions
+            });
         }
     }
 }
