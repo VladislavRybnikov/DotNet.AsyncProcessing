@@ -24,7 +24,7 @@ Example:
 // [1, 2, ..., 5] >=> [1, 2] or timeout
 
 //var pipe = AsyncPipe.Create<int>(5, 2, Sec(2));
-var pipe = AsyncPipe
+await using var var pipe = AsyncPipe // at the end of Main method - Cancel consuming and awaits its processing completed
     .Of<int>(5)
     .Out(2, TimeSpan.FromSeconds(2))
     .Pipe;
