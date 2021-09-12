@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using DotNet.AsyncProcessing.Pipes;
+using DotNet.AsyncProcessing.Agents;
 
 namespace DotNet.AsyncProcessing.Examples
 {
@@ -10,93 +9,38 @@ namespace DotNet.AsyncProcessing.Examples
     {
         static async Task Main(string[] args)
         {
-            //await SimplePipeExample();
+            // await PipeExamples.SimplePipeExample();
 
-            await ParallelPipeExample();
+            //await SimpleAgentExample();
+
+            await ParallelAgentExample();
+        }
+        
+        private static async Task ParallelAgentExample()
+        {
+            var agent = Agent.Stateless().Of<int>().ParallelBy(x => x, 5).Create();
+            await AgentWork(agent);
+        }
+        
+        private static async Task SequencedAgentExample()
+        {
+            var agent = Agent.Stateless().Of<int>().Create();
+            await AgentWork(agent);
         }
 
-        private static async Task ParallelPipeExample()
+        private static async Task AgentWork(IAgent<int> agent)
         {
-            // Parallel Pipe concept:
-            //
-            // IN:         5
-            //             |
-            //             V
-            //           - - -
-            // GROUP:   |  |  |
-            //          V  V  V
-            //      [___][___][___]
-            //      |   ||   ||   |
-            // MAX: [___][___][___]
-            //       ||   ||   ||
-            //       V    V    V
-            //
-            // OUT: [1, 2], [3, 5] [5, 6]
-            
-            var parallelPipe = AsyncPipe
-                .Of<int>(10)
-                .ParallelBy(i => i, 5)
-                .Pipe;
-
-            parallelPipe.Consume(async (nums, ct) =>
+            agent.Start(async (msg, ct) =>
             {
                 await Task.Delay(1000, ct);
-                Console.WriteLine($"[ {string.Join(", ", nums)} ] Thread: {Thread.CurrentThread.ManagedThreadId}");
-            }, skipEmptyOutput: true);
+                Console.WriteLine($"Message: {msg.Data} - reply on Thread: {Thread.CurrentThread.ManagedThreadId}");
+                
+                await msg.Reply(true);
+            });
 
-            await Task.WhenAll(Enumerable.Range(1, 20)
-                .Select(async i => await parallelPipe.PushAsync(i)));
-
-            await Task.Delay(5000);
-        }
-
-        private static async Task SimplePipeExample()
-        {
-            TimeSpan Sec(int s) => TimeSpan.FromSeconds(s);
-
-            // Pipe concept:
-            //
-            // IN:      5
-            //          |
-            //          V
-            // START: [___]
-            //        | 4 |
-            //        | 3 |
-            // MAX:   [___]  Handles backpressure
-            //         ||
-            //         V
-            // OUT: [1, 2] OR [...] on timeout
-            //
-            // Or: 
-            // [1, 2, ..., 5] >=> [1, 2] or timeout
-
-            //var pipe = AsyncPipe.Create<int>(5, 2, Sec(2));
-            await using var pipe = AsyncPipe
-                .Of<int>(5)
-                .Out(2, Sec(2))
-                .Pipe;
-
-            pipe.Consume(async (nums, ct) =>
-            {
-                await Task.Delay(100, ct);
-                Console.WriteLine("[ " + string.Join(", ", nums) + " ]");
-            }, skipEmptyOutput: true);
-
-            await pipe.PushAsync(1, Sec(1));
-            await pipe.PushAsync(2, Sec(1));
-            await pipe.PushAsync(3, Sec(1));
-
-            await pipe.PushAsync(0);
-            await pipe.PushAsync(0);
-            await pipe.PushAsync(0);
-            await pipe.PushAsync(0);
-            // -- backpressure
-            await pipe.PushAsync(0);
-            await pipe.PushAsync(0);
-
-            await pipe.PushAsync(4, Sec(1));
-            await pipe.PushAsync(5, Sec(1));
-            await pipe.PushAsync(6, Sec(1));
+            var replyQueue = new ReplyQueue<bool>(5);
+            for(var i = 0; i < 5; i++) await agent.Ask(i, replyQueue);
+            _ = await replyQueue.WaitAll();
         }
     }
 }
