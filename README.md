@@ -77,3 +77,28 @@ await Task.WhenAll(Enumerable.Range(1, 20)
 await Task.Delay(5000);
 
 ```
+
+# Agent
+
+Agent-based programming model for C# (similar to F# MailboxProcessor)
+Example:
+
+```csharp
+var agent = Agent
+    .Stateless()
+    .Of<int>()
+    .Create();
+
+agent.Start(async (msg, ct) =>
+{
+    await Task.Delay(1000, ct);
+    Console.WriteLine($"Message: {msg.Data} - reply on Thread: {Thread.CurrentThread.ManagedThreadId}");
+    
+    await msg.Reply(true);
+});
+
+var replyQueue = new ReplyQueue<bool>(5); // creates reply queue with specified size
+for(var i = 0; i < 5; i++) await agent.Ask(i, replyQueue); // Send message to agent and ask it to reply to queue
+_ = await replyQueue.WaitAll(); // wait till all messages will be replied
+
+```

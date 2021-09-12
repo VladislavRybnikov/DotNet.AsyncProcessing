@@ -18,13 +18,22 @@ namespace DotNet.AsyncProcessing.Examples
         
         private static async Task ParallelAgentExample()
         {
-            var agent = Agent.Stateless().Of<int>().ParallelBy(x => x, 5).Create();
+            var agent = Agent
+                .Stateless()
+                .Of<int>()
+                .ParallelBy(x => x, 5)
+                .Create();
+            
             await AgentWork(agent);
         }
         
         private static async Task SequencedAgentExample()
         {
-            var agent = Agent.Stateless().Of<int>().Create();
+            var agent = Agent
+                .Stateless()
+                .Of<int>()
+                .Create();
+            
             await AgentWork(agent);
         }
 
