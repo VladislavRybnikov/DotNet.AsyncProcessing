@@ -17,19 +17,19 @@ namespace DotNet.AsyncProcessing.Agents.Impl
             });
         }
 
-        protected ValueTask PostBase(TMsg item)
+        public ValueTask Post(TMsg item)
         {
             return Mailbox.Writer.WriteAsync(new FireAndForgetMessage<TMsg>(item));
         }
         
-        protected async ValueTask<TResponse> AskBase<TResponse>(TMsg item)
+        public async ValueTask<TResponse> Ask<TResponse>(TMsg item)
         {
             var tcs = new TaskCompletionSource<TResponse>();
             await Mailbox.Writer.WriteAsync(new ReplyMessage<TMsg, TResponse>(item, tcs));
             return await tcs.Task;
         }
         
-        protected ValueTask AskBase<TResponse>(TMsg item, ReplyQueue<TResponse> replyTo)
+        public ValueTask Ask<TResponse>(TMsg item, ReplyQueue<TResponse> replyTo)
         {
             replyTo.Request();
             return Mailbox.Writer.WriteAsync(new ReplyQueueMessage<TMsg, TResponse>(item, replyTo));

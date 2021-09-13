@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace DotNet.AsyncProcessing.Agents.Impl
 {
-    internal class ParallelAgent<TMsg> : AgentBase<TMsg>, IAgent<TMsg>
+    internal class ParallelAgent<TMsg> : IAgent<TMsg>
     {
         private readonly IReadOnlyDictionary<int, IAgent<TMsg>> _agents;
         private readonly Func<TMsg, int> _groupSelector;
         private readonly int _maxGroups;
 
-        public ParallelAgent(int mailboxSize, Func<TMsg, int> groupSelector, int maxGroups) : base(1)
+        public ParallelAgent(int mailboxSize, Func<TMsg, int> groupSelector, int maxGroups)
         {
             _groupSelector = groupSelector;
             _maxGroups = maxGroups;

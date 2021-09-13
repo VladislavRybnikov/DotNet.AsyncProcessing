@@ -13,6 +13,8 @@ namespace DotNet.AsyncProcessing.Agents
         private int _requestedSize;
         
         private readonly Channel<T> _channel;
+
+        public bool IsFull => _requestedSize > _maxSize - 1;
         
         public ReplyQueue(int? maxSize = null)
         {

@@ -13,6 +13,7 @@ namespace DotNet.AsyncProcessing.Agents
         ValueTask<TResponse> Ask<TResponse>(TMsg item);
 
         void Start(AgentBehaviour<TState, TMsg> behaviour,
+            TState initialState = default,
             CancellationToken cts = default);
     }
     public interface IAgent<TMsg>

@@ -8,6 +8,24 @@ namespace DotNet.AsyncProcessing.Agents
         public IAgentBuilder<TMsg> Of<TMsg>() => new AgentBuilder<TMsg>(() => new StatelessAgent<TMsg>());
     }
     
+    internal class StatefulAgentBuilder<TState> : IStatefulAgentBuilder<TState>
+    {
+        public IAgentBuilder<TState, TMsg> Of<TMsg>() => new AgentBuilder<TState, TMsg>();
+    }
+
+    internal class AgentBuilder<TState, TMsg> : IAgentBuilder<TState, TMsg>
+    {
+        public IAgent<TState, TMsg> Create()
+        {
+            return new StatefulAgent<TState, TMsg>();
+        }
+
+        public IBatchedAgentBuilder<TState, TMsg> Batch(int batch)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    
     internal class AgentBuilder<TMsg> : IAgentBuilder<TMsg>, IParallelAgentBuilder<TMsg>, IBatchedAgentBuilder<TMsg>
     {
         private readonly Func<IAgent<TMsg>> _builder;
@@ -38,7 +56,7 @@ namespace DotNet.AsyncProcessing.Agents
         }
     }
 
-    public interface IAgentBuilder<TState, TMsg> : IAgentCreation<TMsg>
+    public interface IAgentBuilder<TState, TMsg> : IAgentCreation<TState, TMsg>
     {
         IBatchedAgentBuilder<TState, TMsg> Batch(int batch);
     }

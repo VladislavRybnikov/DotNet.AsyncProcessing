@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using System.Threading.Tasks;
 
 namespace DotNet.AsyncProcessing.Agents.Impl
 {
@@ -7,18 +6,14 @@ namespace DotNet.AsyncProcessing.Agents.Impl
     {
         public TState State { get; private set; }
 
-        public StatefulAgent(int mailboxCapacity = 1) : base(mailboxCapacity)
-        {
-        }
+        public StatefulAgent(int mailboxCapacity = 1) : base(mailboxCapacity) { }
         
-        public ValueTask Post(TMsg item) => PostBase(item);
-
-        public ValueTask<TResponse> Ask<TResponse>(TMsg item) => AskBase<TResponse>(item);
-
         public void Start(
             AgentBehaviour<TState, TMsg> behaviour,
+            TState initialState = default,
             CancellationToken ct = default)
         {
+            State = initialState;
             Loop(async msg =>
             {
                 State = await behaviour(State, msg, ct);

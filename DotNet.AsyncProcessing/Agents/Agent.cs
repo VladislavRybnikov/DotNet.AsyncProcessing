@@ -16,7 +16,7 @@ namespace DotNet.AsyncProcessing.Agents
 
         public static IStatefulAgentBuilder<TState> Stateful<TState>()
         {
-            return null;
+            return new StatefulAgentBuilder<TState>();
         }
     }
 }
